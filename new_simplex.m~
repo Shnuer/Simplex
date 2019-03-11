@@ -1,0 +1,147 @@
+
+%Загружаем значения и обрезаем значения
+x = x_value2;
+y = y_value2;
+
+x_new = [];
+y_new = [];
+for k=1:250
+    if x(k)>0
+        x_new=[x_new x(k)];
+        y_new=[y_new y(k)]; 
+    end
+end
+x = x_new;
+y = y_new;
+figure(3)
+plot(x,y,'.')
+hold on
+y = (y - mean(y))/std(y)/2
+start_point = 0;
+%Задаем длину ребра и расчитываем каждую вершину тетраэдра
+
+edge = 1;
+
+a1 = start_point;
+b1 = start_point;
+r1 = start_point;
+
+a2 = start_point;
+b2 = start_point;
+r2 = start_point + edge;
+
+a3 = start_point;
+b3 = start_point + sqrt((edge^2)-(edge/2)^2);
+r3 = start_point + edge/2;
+
+a4 = start_point + sqrt(2/3)*edge; % по определению высоты правильного тетраэдра
+b4 = start_point + (sqrt((edge^2)-(edge/2)^2))/3; 
+r4 = start_point + edge/2;
+
+
+% флаг для первого значения ошибки
+flag_first_value = 0
+
+flag1 = 0;
+flag2 = 0;
+flag3 = 0;
+flag4 = 0;
+
+Error1 = 0;
+Error2 = 0;
+Error3 = 0;
+Error4 = 0;
+
+bad_value = 1;
+
+Error = [0,0,0,0];
+A = [a1,a2,a3,a4];
+B = [b1,b2,b3,b4];
+R = [r1,r2,r3,r4];
+
+for i = 1:100
+     
+    plot_simpl(A,B,R)
+    
+    for j = 1:4  
+        for k=1:length(x)
+             Error(j) = Error(j) + abs(sqrt(((x(k)-A(j))^2) + ((y(k)-B(j))^2)) - R(j)^2);
+         end
+    end
+    Error
+    [val, i_max_error] = max(Error);
+    Error = [0,0,0,0];
+    
+    % рассчет ошибки для каждой вершины
+
+        a_centre = (sum(A)-A(i_max_error))/3;
+        b_centre = (sum(B)-B(i_max_error))/3;
+        r_centre = (sum(R)-R(i_max_error))/3;
+
+        A(i_max_error) = A(i_max_error) + 2 * (a_centre - A(i_max_error));
+        B(i_max_error) = B(i_max_error) + 2 * (b_centre - B(i_max_error));
+        R(i_max_error) = R(i_max_error) + 2 * (r_centre - R(i_max_error));
+      
+       
+        i_max_error
+    end
+    
+   
+    
+
+    
+    
+    
+    
+    
+    
+   
+    
+
+
+min_value1 = min(Error1, Error2);
+min_value2 = min(Error3, Error4);
+
+min_value = min(min_value1, min_value2);
+
+if Error1 == min_value
+   
+   a_best = a1;
+   b_best = b1;
+   r_best = r1;
+ 
+end
+
+if Error2 == min_value
+   
+   a_best = a2;
+   b_best = b2;
+   r_best = r2;
+ 
+end
+
+if Error3 == min_value
+   
+   a_best = a3;
+   b_best = b3;
+   r_best = r3;
+ 
+end
+
+if Error4 == min_value
+   
+   a_best = a4;
+   b_best = b4;
+   r_best = r4;
+ 
+end
+
+t = [0:pi/180:2*pi];
+
+x_best=r_best*cos(t)+a_best;
+y_best=r_best*sin(t)+b_best; 
+
+figure(3)
+plot(x_best,y_best,'-r')
+
+hold on

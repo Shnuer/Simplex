@@ -1,0 +1,234 @@
+
+%Загружаем значения и обрезаем значения
+x = x_value2;
+y = y_value2;
+
+x_new = [];
+y_new = [];
+for k=1:250
+    if x(k)>0
+        x_new=[x_new x(k)];
+        y_new=[y_new y(k)]; 
+    end
+end
+x = x_new;
+y = y_new;
+figure(3)
+plot(x,y,'.')
+hold on
+
+start_point = 0;
+%Задаем длину ребра и расчитываем каждую вершину тетраэдра
+
+edge = 10;
+
+a1 = start_point;
+b1 = start_point;
+r1 = start_point;
+
+a2 = start_point;
+b2 = start_point;
+r2 = start_point + edge;
+
+a3 = start_point;
+b3 = start_point + sqrt((edge^2)-(edge/2)^2);
+r3 = start_point + edge/2;
+
+a4 = start_point + sqrt(2/3)*edge; % по определению высоты правильного тетраэдра
+b4 = start_point + (sqrt((edge^2)-(edge/2)^2))/3; 
+r4 = start_point + edge/2;
+
+t = [0:pi/180:2*pi];
+% флаг для первого значения ошибки
+flag_first_value = 0
+
+flag1 = 0;
+flag2 = 0;
+flag3 = 0;
+flag4 = 0;
+
+Error1 = 0;
+Error2 = 0;
+Error3 = 0;
+Error4 = 0;
+
+bad_value = 1;
+
+for i = 1:100
+    plot_simpl(a1,b1,r1,a2,b2,r2,a3,b3,r3,a4,b4,r4)
+    % рассчет ошибки для каждой вершины
+
+    if Error1 == bad_value
+       
+        a_centre = (a2+a3+a4)/3;
+        b_centre = (b2+b3+b4)/3;
+        r_centre = (r2+r3+r4)/3;
+        
+        a_vector = a_centre - a1;
+        b_vector = b_centre - b1;
+        r_vector = r_centre - r1;
+        
+        a1 = a1 + 2 * a_vector;
+        b1 = b1 + 2 * b_vector;
+        r1 = r1 + 2 * r_vector; 
+        
+        Error1 = 0;
+        flag1 = 0;
+    end
+    
+    if Error2 == bad_value
+       
+        a_centre = (a1+a3+a4)/3;
+        b_centre = (b1+b3+b4)/3;
+        r_centre = (r1+r3+r4)/3;
+        
+        a_vector = a_centre - a2;
+        b_vector = b_centre - b2;
+        r_vector = r_centre - r2;
+        
+        a2 = a2 + 2 * a_vector;
+        b2 = b2 + 2 * b_vector;
+        r2 = r2 + 2 * r_vector;  
+        
+        Error2 = 0;
+        flag2 = 0;
+    end
+    
+    if Error3 == bad_value
+       
+        a_centre = (a2+a1+a4)/3;
+        b_centre = (b2+b1+b4)/3;
+        r_centre = (r2+r1+r4)/3;
+        
+        a_vector = a_centre - a3;
+        b_vector = b_centre - b3;
+        r_vector = r_centre - r3;
+        
+        a3 = a3 + 2 * a_vector;
+        b3 = b3 + 2 * b_vector;
+        r3 = r3 + 2 * r_vector;  
+        
+        Error3 = 0;
+        flag3 = 0;
+    end
+    
+    if Error4 == bad_value
+       
+        a_centre = (a2+a3+a1)/3;
+        b_centre = (b2+b3+b1)/3;
+        r_centre = (r2+r3+r1)/3;
+        
+        a_vector = a_centre - a4;
+        b_vector = b_centre - b4;
+        r_vector = r_centre - r4;
+        
+        a4 = a4 + 2 * a_vector;
+        b4 = b4 + 2 * b_vector;
+        r4 = r4 + 2 * r_vector;  
+        
+        Error4 = 0;
+        flag4 = 0;
+    end
+    
+    
+    
+    
+    
+    if (flag1 == 0)
+        for k=1:165
+            Error1 = Error1 + abs(sqrt(((x(k)-a1)^2) + ((y(k)-b1)^2)) - r1^2);
+        end
+        flag1=1;
+        Error1 = abs(Error1);
+        if flag_first_value == 0
+            bad_value = Error1;
+            flag_first_value = 1;
+            
+        end
+        
+        
+    end
+    
+    if (flag2 == 0)
+        for k=1:165
+            Error2 = Error2 + abs(sqrt(((x(k)-a2)^2) + ((y(k)-b2)^2)) - r2^2);
+        end
+        flag2=1;
+        Error2 = abs(Error2);
+    end
+
+    if (flag3 == 0)
+        for k=1:165
+            Error3 = Error3 + abs(sqrt(((x(k)-a3)^2) + ((y(k)-b3)^2)) - r3^2);
+        end
+        flag3=1;
+        Error3 = abs(Error3);
+    end
+
+    if (flag4 == 0)
+        for k=1:165
+            Error4 = Error4 + abs(sqrt(((x(k)-a4)^2) + ((y(k)-b4)^2)) - r4^2);
+        end
+        flag4=1;
+        Error4 = abs(Error4);
+    end
+    
+    %сравнение ошибок, самая большая ошибка обнуляется и коэффициенты этой вершины
+    %отображаются
+    
+    tst_bad_value = max(Error1, Error2);
+    tst1_bad_value = max(Error3, Error4);
+    bad_value = max(tst_bad_value, tst1_bad_value);
+    
+    
+    
+    
+    
+    
+   
+end
+
+min_value1 = min(Error1, Error2);
+min_value2 = min(Error3, Error4);
+
+min_value = min(min_value1, min_value2);
+
+if Error1 == min_value
+   
+   a_best = a1;
+   b_best = b1;
+   r_best = r1;
+ 
+end
+
+if Error2 == min_value
+   
+   a_best = a2;
+   b_best = b2;
+   r_best = r2;
+ 
+end
+
+if Error3 == min_value
+   
+   a_best = a3;
+   b_best = b3;
+   r_best = r3;
+ 
+end
+
+if Error4 == min_value
+   
+   a_best = a4;
+   b_best = b4;
+   r_best = r4;
+ 
+end
+
+
+x_best=r_best*cos(t)+a_best;
+y_best=r_best*sin(t)+b_best; 
+figure(3)
+plot(x_best,y_best,'-r')
+Error = [Error1, Error2, Error3, Error4]
+hold on
